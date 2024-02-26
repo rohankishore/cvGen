@@ -10,7 +10,7 @@ from qfluentwidgets import (NavigationBar, NavigationItemPosition, MessageBox,
                             PopUpAniStackedWidget, setThemeColor)
 from qfluentwidgets import FluentIcon as FIF
 from qframelesswindow import FramelessWindow, TitleBar
-from cvWidget import ResumeBuilderWidget
+from cvTest import ResumeBuilderWidget
 
 
 class StackedWidget(QFrame):
