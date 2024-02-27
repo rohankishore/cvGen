@@ -1,13 +1,6 @@
-import sys
-
-import PyPDF2
-from PyQt6.QtWidgets import QApplication, QWidget, QVBoxLayout, QLabel, QLineEdit, QTextEdit, QGroupBox, QPushButton
-from qfluentwidgets import (NavigationBar, NavigationItemPosition, MessageBox, LineEdit, TextEdit,
-                            isDarkTheme, setTheme, Theme,
-                            PopUpAniStackedWidget, ScrollArea, StrongBodyLabel, PushButton)
-from qfluentwidgets import FluentIcon as FIF
-from qframelesswindow import FramelessWindow, TitleBar
-import pdfkit
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QPushButton
+from qfluentwidgets import (LineEdit, TextEdit,
+                            ScrollArea, StrongBodyLabel)
 
 
 class ResumeBuilderWidget(QWidget):
@@ -26,6 +19,7 @@ class ResumeBuilderWidget(QWidget):
 
         self.labels_and_fields = [
             ("Name *", LineEdit()),
+            ("Position *", LineEdit()),  # Add a line edit field for position
             ("Location *", LineEdit()),
             ("Email *", LineEdit()),
             ("Phone *", LineEdit()),
@@ -101,21 +95,16 @@ class ResumeBuilderWidget(QWidget):
         main_layout.addWidget(experience_group)
 
         # Group for education
-        education_group = QGroupBox("Education *")
+        education_group = QGroupBox("")
         education_layout = QVBoxLayout(education_group)
-
-        self.education_fields = []
-        education_labels = ["Start Date *", "End Date *", "Highlights", "Institution *", "Area *", "Degree *"]
-
-        for label in education_labels:
-            field = LineEdit() if label != "Highlights" else TextEdit()
-            field_label = StrongBodyLabel()
-            field_label.setText(label)
-            field_label.setStyleSheet("color: white;")
-            education_layout.addWidget(field_label)
-            education_layout.addWidget(field)
-            self.education_fields.append(field)
-
+        education_label = StrongBodyLabel()
+        education_label.setText(
+            "Experience (Format: [Institution]{Degree - CGPA}(Date(Start to End seperated with underscore)))")
+        education_label.setStyleSheet("color: white;")
+        education_layout.addWidget(education_label)
+        self.educational_textbox = TextEdit()
+        self.educational_textbox.setText("[VIT Vellore]{BTech CSE - 9.1}(27-12-2018_14-03-2022), [NIT Calicut]{MTech}(12-01-2023_14-02-2025)")
+        education_layout.addWidget(self.educational_textbox)
         main_layout.addWidget(education_group)
 
         # Add the "Create" button
@@ -147,11 +136,38 @@ class ResumeBuilderWidget(QWidget):
     def get_email(self):
         return self.labels_and_fields[2][1].text()
 
+    def get_education(self):
+        education_text = self.educational_textbox.toPlainText().strip()
+        education_entries = education_text.split(',')
+        education_list = []
+        for edu in education_entries:
+            edu_parts = edu.split('{')
+            if len(edu_parts) == 2:
+                institution_part = edu_parts[0].strip()
+                if institution_part.startswith('[') and institution_part.endswith(']'):
+                    institution = institution_part[1:-1]
+                else:
+                    institution = institution_part
+                details = edu_parts[1].strip(')').split('(')
+                if len(details) == 2:
+                    degree_parts = details[0].split('-')
+                    if len(degree_parts) == 2:
+                        degree = degree_parts[0].strip() + " - CGPA: " + degree_parts[1].strip()
+                    else:
+                        degree = details[0].strip()
+                    # Replace underscores with hyphens in the date part
+                    date = details[1].strip().replace('_', '-')
+                    education_list.append((institution, degree, date))
+        return education_list
+
     def get_phone(self):
         return self.labels_and_fields[3][1].text()
 
     def get_website(self):
         return self.labels_and_fields[4][1].text()
+
+    def get_position(self):
+        return self.labels_and_fields[1][1].text()  # Get text from the position field
 
     def get_linkedin(self):
         return self.social_network_fields[0][1].text()
@@ -165,15 +181,6 @@ class ResumeBuilderWidget(QWidget):
     def get_experience(self):
         return self.experience_textbox.toPlainText()
 
-    def get_education_fields(self):
-        education_values = []
-        for field in self.education_fields:
-            try:
-                education_values.append(field.toPlainText())
-            except AttributeError:
-                education_values.append(field.text())
-        return education_values
-
     def generate_cv(self):
         with open('resource/html_templates/temp1/srt-resume.html', 'r') as html_file:
             html_template = html_file.read()
@@ -181,6 +188,7 @@ class ResumeBuilderWidget(QWidget):
         name = self.get_name()
         phone = self.get_phone()
         email = self.get_email()
+        position = self.get_position()  # Get position from the new field
         location = self.get_location()
         website = self.get_website()
         li = self.get_linkedin()
@@ -190,6 +198,7 @@ class ResumeBuilderWidget(QWidget):
         # Replace placeholders in the HTML template with the corresponding values
         html_template = html_template.replace('{name}', name)
         html_template = html_template.replace('{phone}', phone)
+        html_template = html_template.replace('{position}', position)
         html_template = html_template.replace('{email}', email)
         html_template = html_template.replace('{location}', location)
         html_template = html_template.replace('{website}', website)
@@ -209,6 +218,23 @@ class ResumeBuilderWidget(QWidget):
 
         # Replace {talent} placeholder in the HTML template with the talent sections
         html_template = html_template.replace('{talent}', talent_section)
+
+        # Retrieve education data
+        education_data = self.get_education()
+
+        # Generate HTML content for education
+        education_content = ""
+        for institution, degree, date in education_data:
+            education_content += f"<h2>{institution}</h2>\n"
+            # Remove curly brackets from degree if present
+            degree = degree.replace('{', '').replace('}', '')
+            education_content += f"<h3>{degree}</h3>\n"
+            education_content += f"<p>Date: {date}</p>\n"
+            # Add line break after each college detail
+            education_content += "<br/>\n"
+
+        # Replace the placeholder with the education content in the HTML template
+        html_template = html_template.replace('{education_placeholder}', education_content)
 
         # Generate experience section
         experience_text = self.experience_textbox.toPlainText()
