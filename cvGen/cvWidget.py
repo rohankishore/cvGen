@@ -42,6 +42,14 @@ class ResumeBuilderWidget(QWidget):
             ("Website", LineEdit())
         ]
 
+        # Fill in fake details for testing
+        self.labels_and_fields[0][1].setText("John Doe")
+        self.labels_and_fields[2][1].setText("New York")
+        self.labels_and_fields[3][1].setText("john.doe@example.com")
+        self.labels_and_fields[1][1].setText("Programmer")
+        self.labels_and_fields[4][1].setText("123-456-7890")
+        self.labels_and_fields[5][1].setText("www.johndoe.com")
+
         for label, field in self.labels_and_fields:
             label_widget = StrongBodyLabel()
             label_widget.setText(label)
@@ -172,10 +180,10 @@ class ResumeBuilderWidget(QWidget):
         return self.labels_and_fields[0][1].text()
 
     def get_location(self):
-        return self.labels_and_fields[1][1].text()
+        return self.labels_and_fields[2][1].text()
 
     def get_email(self):
-        return self.labels_and_fields[2][1].text()
+        return self.labels_and_fields[3][1].text()
 
     def get_technical(self):
         technical_skills_text = self.technical_textbox.toPlainText().strip()
@@ -207,10 +215,10 @@ class ResumeBuilderWidget(QWidget):
         return education_list
 
     def get_phone(self):
-        return self.labels_and_fields[3][1].text()
+        return self.labels_and_fields[4][1].text()
 
     def get_website(self):
-        return self.labels_and_fields[4][1].text()
+        return self.labels_and_fields[5][1].text()
 
     def get_position(self):
         return self.labels_and_fields[1][1].text()  # Get text from the position field
@@ -228,15 +236,21 @@ class ResumeBuilderWidget(QWidget):
         return self.experience_textbox.toPlainText()
 
     def generate_cv_temp1(self):
-        with open(f'{local_app_data}/resource/html_templates/temp1/srt-resume.html', 'r') as html_file:
+        with open('resource/html_templates/temp1/srt-resume.html', 'r') as html_file:
             html_template = html_file.read()
 
         name = self.get_name()
+        print("name: ", name)
         phone = self.get_phone()
+        print("ph: ", phone)
         email = self.get_email()
+        print("em: ", email)
         position = self.get_position()  # Get position from the new field
+        print("pos: ", position)
         location = self.get_location()
+        print("loc: ", location)
         website = self.get_website()
+        print("web: ", website)
         li = self.get_linkedin()
         git = self.get_github()
         summary = self.get_summary()
@@ -316,6 +330,67 @@ class ResumeBuilderWidget(QWidget):
 
         print(html_template)
         self.save_as_html(html_content=html_template)
+
+    def save_as_pdf(self, html_content):
+        css_file_path = "f'{local_app_data}/resource/html_templates/temp1/srt-resume.html'"
+
+        # Ask the user to select the directory to save files
+        file_dialog = QFileDialog()
+        file_dialog.setFileMode(QFileDialog.FileMode.Directory)
+        save_path = file_dialog.getExistingDirectory(self, "Select Directory to Save Files", ".")
+
+        if save_path:
+            try:
+                # Generate HTML file path
+                html_file_path = os.path.join(save_path, "output.html")
+                pdf_file_path = os.path.join(save_path, "output.pdf")
+
+                # Write HTML content to output HTML file if it doesn't exist
+                if not os.path.exists(html_file_path):
+                    with open(html_file_path, "w") as html_file:
+                        html_file.write(html_content)
+
+                # Create PDF only if it doesn't exist
+                if not os.path.exists(pdf_file_path):
+                    with open(html_file_path, "rb") as html_file, open(pdf_file_path, "wb") as pdf_file:
+                        pisa_status = pisa.CreatePDF(html_file, dest=pdf_file, css=css_file_path)
+
+                    if pisa_status.err:
+                        raise Exception(f"PDF creation failed: {pisa_status.err}")
+
+                    w = MessageBox(
+                        'Success!',
+                        "You can now find your lovely 😍 CV in the chosen directory. Have fun!",
+                        self
+                    )
+                    w.yesButton.setText('Alright blud!')
+                    w.cancelButton.setText('Let me try again')
+                    w.exec()
+                else:
+                    # Show message if PDF already exists
+                    w = MessageBox(
+                        'PDF Exists!',
+                        "PDF file already exists in the chosen directory.",
+                        self
+                    )
+                    w.yesButton.setText('Alright blud!')
+                    w.cancelButton.setText('Cool')
+                    w.exec()
+
+            except Exception as e:
+                print("Exc: ", e)
+                w = MessageBox(
+                    'PDF Error!',
+                    str(e),
+                    self
+                )
+                w.yesButton.setText('Alright blud!')
+                w.cancelButton.setText('Let me try again')
+
+                if w.exec():
+                    pass
+
+                w.exec()
 
     def save_as_html(self, html_content):
         css_file_path = f'{local_app_data}/resource/html_templates/temp1/resume.css'
