@@ -1,6 +1,6 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QPushButton
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QPushButton, QComboBox
 from qfluentwidgets import (LineEdit, TextEdit,
-                            ScrollArea, StrongBodyLabel)
+                            ScrollArea, StrongBodyLabel, ComboBox)
 
 
 class ResumeBuilderWidget(QWidget):
@@ -16,6 +16,13 @@ class ResumeBuilderWidget(QWidget):
         # Group for personal information
         personal_info_group = QGroupBox("Personal Information")
         personal_info_layout = QVBoxLayout(personal_info_group)
+
+        # Combo box for template selection
+        self.template_combo_box = QComboBox(self)
+        items = ["Template 1", "Template 2", "Template 3"]
+        self.template_combo_box.addItems(items)
+        self.template_combo_box.currentTextChanged.connect(self.handle_layout)
+        main_layout.addWidget(self.template_combo_box)
 
         self.labels_and_fields = [
             ("Name *", LineEdit()),
@@ -36,8 +43,8 @@ class ResumeBuilderWidget(QWidget):
         main_layout.addWidget(personal_info_group)
 
         # Group for social networks
-        social_networks_group = QGroupBox("Social Networks")
-        social_networks_layout = QVBoxLayout(social_networks_group)
+        self.social_networks_group = QGroupBox("Social Networks")
+        social_networks_layout = QVBoxLayout(self.social_networks_group)
 
         self.social_network_fields = []
         for network in ["LinkedIn", "GitHub"]:
@@ -49,7 +56,7 @@ class ResumeBuilderWidget(QWidget):
             social_networks_layout.addWidget(network_field)
             self.social_network_fields.append((network, network_field))
 
-        main_layout.addWidget(social_networks_group)
+        main_layout.addWidget(self.social_networks_group)
 
         # Group for summary
         summary_group = QGroupBox("")
@@ -141,6 +148,15 @@ class ResumeBuilderWidget(QWidget):
         # Set main layout of the main widget
         self.setLayout(QVBoxLayout(self))
         self.layout().addWidget(scroll_area)
+
+        self.handle_layout()
+
+    def handle_layout(self):
+        currentSelection = self.template_combo_box.currentText()
+        if currentSelection == "Template 1":
+            self.social_networks_group.hide()
+        else:
+            self.social_networks_group.show()
 
     def get_name(self):
         return self.labels_and_fields[0][1].text()
