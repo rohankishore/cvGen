@@ -1,6 +1,15 @@
-from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QPushButton, QComboBox
+import os
+from PyQt6.QtWidgets import QWidget, QVBoxLayout, QGroupBox, QPushButton, QComboBox, QFileDialog
 from qfluentwidgets import (LineEdit, TextEdit,
-                            ScrollArea, StrongBodyLabel, ComboBox)
+                            ScrollArea, StrongBodyLabel, MessageBox)
+from xhtml2pdf import pisa
+
+local_app_data = os.path.join(os.getenv("LocalAppData"), "cvGen")
+print(local_app_data)
+local_app_data = local_app_data.replace("\\", "/")
+print(local_app_data)
+
+css_temp1 = "resource/html_templates/temp1/resume.css"
 
 
 class ResumeBuilderWidget(QWidget):
@@ -125,13 +134,14 @@ class ResumeBuilderWidget(QWidget):
         education_label.setStyleSheet("color: white;")
         education_layout.addWidget(education_label)
         self.educational_textbox = TextEdit()
-        self.educational_textbox.setText("[VIT Vellore]{BTech CSE - 9.1}(27-12-2018_14-03-2022), [NIT Calicut]{MTech}(12-01-2023_14-02-2025)")
+        self.educational_textbox.setText(
+            "[VIT Vellore]{BTech CSE - 9.1}(27-12-2018_14-03-2022), [NIT Calicut]{MTech}(12-01-2023_14-02-2025)")
         education_layout.addWidget(self.educational_textbox)
         main_layout.addWidget(education_group)
 
         # Add the "Create" button
         create_button = QPushButton("Create")
-        create_button.clicked.connect(self.generate_cv)  # Connect button clicked signal to generate_cv method
+        create_button.clicked.connect(self.generate_cv_temp1)  # Connect button clicked signal to generate_cv method
         main_layout.addWidget(create_button)
 
         # Create scroll area
@@ -217,8 +227,8 @@ class ResumeBuilderWidget(QWidget):
     def get_experience(self):
         return self.experience_textbox.toPlainText()
 
-    def generate_cv(self):
-        with open('resource/html_templates/temp1/srt-resume.html', 'r') as html_file:
+    def generate_cv_temp1(self):
+        with open(f'{local_app_data}/resource/html_templates/temp1/srt-resume.html', 'r') as html_file:
             html_template = html_file.read()
 
         name = self.get_name()
@@ -305,3 +315,63 @@ class ResumeBuilderWidget(QWidget):
         html_template = html_template.replace('{experience_placeholder}', experience_content)
 
         print(html_template)
+        self.save_as_html(html_content=html_template)
+
+    def save_as_html(self, html_content):
+        css_file_path = f'{local_app_data}/resource/html_templates/temp1/resume.css'
+        # Ask the user to select the directory to save files
+        file_dialog = QFileDialog()
+        file_dialog.setFileMode(QFileDialog.FileMode.Directory)
+        save_path = file_dialog.getExistingDirectory(self, "Select Directory to Save Files", ".")
+
+        if save_path:
+            try:
+                # Create a folder named "output" in the selected directory
+                output_folder_path = os.path.join(save_path, "cv")
+                os.makedirs(output_folder_path, exist_ok=True)
+
+                # Generate HTML file path
+                html_file_path = os.path.join(output_folder_path, "output.html")
+
+                # Move the CSS file to the output folder
+                # css_file_name = os.path.basename(css_file_path)
+                # css_file_destination = os.path.join(output_folder_path, css_file_name)
+                # os.rename(css_file_path, css_file_destination)
+
+                css_temp = css_temp1
+
+                # Write HTML content to output HTML file
+                with open(html_file_path, "w") as html_file:
+                    html_file.write(html_content)
+
+                    # Copy CSS file to the output folder
+                    css_file_name = "resume.css"
+                    css_file_destination = os.path.join(output_folder_path, css_file_name)
+
+                    if not os.path.exists(css_file_destination):
+                        open(css_file_destination, 'a').close()
+                        with open(css_temp, "r") as csstemp1:
+                            css_temp1_data = csstemp1.read()
+                        with open(css_file_destination, 'w') as new_css:
+                            new_css.write(css_temp1_data)
+
+                # Show success message
+                w = MessageBox(
+                    'Success!',
+                    "You can now find your HTML file and CSS file in the 'output' folder within the chosen directory. Have fun!",
+                    self
+                )
+                w.yesButton.setText('Alright blud!')
+                w.cancelButton.setText('Cool')
+                w.exec()
+
+            except Exception as e:
+                print("Exc: ", e)
+                w = MessageBox(
+                    'Error!',
+                    str(e),
+                    self
+                )
+                w.yesButton.setText('Alright blud!')
+                w.cancelButton.setText('Let me try again')
+                w.exec()
