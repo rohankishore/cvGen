@@ -65,6 +65,21 @@ class ResumeBuilderWidget(QWidget):
 
         main_layout.addWidget(summary_group)
 
+        # Group for technical skills
+        technical_group = QGroupBox("")
+        technical_layout = QVBoxLayout(technical_group)
+
+        technical_label = StrongBodyLabel()
+        technical_label.setText("Technical Skills (Separate each skill by comma)")
+        technical_label.setStyleSheet("color: white;")
+        technical_layout.addWidget(technical_label)
+
+        self.technical_textbox = TextEdit()
+        self.technical_textbox.setText("Python, Figma, GitHub")
+        technical_layout.addWidget(self.technical_textbox)
+
+        main_layout.addWidget(technical_group)
+
         # Group for talents
         talent_group = QGroupBox("")
         talent_layout = QVBoxLayout(talent_group)
@@ -135,6 +150,11 @@ class ResumeBuilderWidget(QWidget):
 
     def get_email(self):
         return self.labels_and_fields[2][1].text()
+
+    def get_technical(self):
+        technical_skills_text = self.technical_textbox.toPlainText().strip()
+        technical_skills_list = [skill.strip() for skill in technical_skills_text.split(',')]
+        return technical_skills_list
 
     def get_education(self):
         education_text = self.educational_textbox.toPlainText().strip()
@@ -236,6 +256,13 @@ class ResumeBuilderWidget(QWidget):
         # Replace the placeholder with the education content in the HTML template
         html_template = html_template.replace('{education_placeholder}', education_content)
 
+        # Replace placeholder for technical skills
+        technical_skills = self.get_technical()
+        technical_skills_section = ""
+        for skill in technical_skills:
+            technical_skills_section += f"<li>{skill}</li>"
+        html_template = html_template.replace('{technical_list_items}', technical_skills_section)
+
         # Generate experience section
         experience_text = self.experience_textbox.toPlainText()
         experience_entries = experience_text.split(',')
@@ -253,6 +280,8 @@ class ResumeBuilderWidget(QWidget):
                 if len(dates_role) == 2:
                     role = dates_role[0].strip('{}')  # Remove curly braces
                     dates = dates_role[1].strip()
+                    # Replace underscores with hyphens in the dates
+                    dates = dates.replace('_', '-')
                     dates_str = f"<h4>{dates}</h4>"
                     experience_content += f"<div class='job'>\n<h2>{company}</h2>\n<h3>{role}</h3>\n{dates_str}\n</div>\n"
 
