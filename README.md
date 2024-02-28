@@ -26,10 +26,7 @@ cvGen helps you to make really good looking CVs.It is built using PyQt6.
 
 ## 🌊 Examples
 
-Example Inputs and Outputs can be seen in the `examples` folder (coming soon)
-> Please note that the examples folder haven't been made as of today (26-02-2024)
-
-<br>
+Example Inputs and Outputs can be seen in the `examples` folder. More and more examples will be added later.
 
 ## Getting Started
 
