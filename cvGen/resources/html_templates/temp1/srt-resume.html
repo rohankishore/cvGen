@@ -2,7 +2,7 @@
 <html>
 <head>
 
-	<title>rohan</title>
+	<title>{name}</title>
 	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
 
 	<meta name="keywords" content="" />
@@ -20,15 +20,14 @@
 		<div id="hd">
 			<div class="yui-gc">
 				<div class="yui-u first">
-					<h1>rohan</h1>
+					<h1>{name}</h1>
 					<h2>{position}</h2>
 				</div>
 
 				<div class="yui-u">
 					<div class="contact-info">
-						<h3><a id="pdf" href="#">Download PDF</a></h3>
-						<h3><a href="mailto:name@yourdomain.com">rewmfknd</a></h3>
-						<h3>jbjh</h3>
+						<h3><a href="mailto:{email}">{email}</a></h3>
+						<h3>{email}</h3>
 					</div><!--// .contact-info -->
 				</div>
 			</div><!--// .yui-gc -->
@@ -64,22 +63,8 @@
 							<h2>Technical</h2>
 						</div>
 						<div class="yui-u">
-							<ul class="talent">
-								<li>XHTML</li>
-								<li>CSS</li>
-								<li class="last">Javascript</li>
-							</ul>
-
-							<ul class="talent">
-								<li>Jquery</li>
-								<li>PHP</li>
-								<li class="last">CVS / Subversion</li>
-							</ul>
-
-							<ul class="talent">
-								<li>OS X</li>
-								<li>Windows XP/Vista</li>
-								<li class="last">Linux</li>
+							<ul class="technical_list">
+								{technical_list_items}
 							</ul>
 						</div>
 					</div><!--// .yui-gf-->
@@ -100,8 +85,7 @@
 							<h2>Education</h2>
 						</div>
 						<div class="yui-u">
-							<h2>Indiana University - Bloomington, Indiana</h2>
-							<h3>Dual Major, Economics and English &mdash; <strong>4.0 GPA</strong> </h3>
+							{education_placeholder}
 						</div>
 					</div><!--// .yui-gf -->
 
@@ -111,7 +95,7 @@
 		</div><!--// bd -->
 
 		<div id="ft">
-			<p>{name} &mdash; <a href="mailto:name@yourdomain.com">{email}</a> &mdash; {phone}</p>
+			<p>{name} &mdash; <a href="mailto:{email}">{email}</a> &mdash; {phone}</p>
 		</div><!--// footer -->
 
 	</div><!-- // inner -->
