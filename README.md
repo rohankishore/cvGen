@@ -31,6 +31,23 @@ Example Inputs and Outputs can be seen in the `examples` folder (coming soon)
 
 <br>
 
+## Getting Started
+
+Getting Started is fairly simple. Here are the steps for manually setting up Python to run cvGen:
+
+```bash
+pip install -r requirements.txt
+```
+
+- Download the repo code
+- Unzip the ZIP file
+- Create a new folder called `cvGen` in your local AppData (`C:\Users\user\AppData\Local\`)
+- Now move `resources` folder inside the repo code which you unzipped earlier to the `cvGen` folder inside `AppData/Local`
+- Run `main.py`
+- Easy Peasy Lemon Squeezy!
+
+<br>
+
 ## Show Support
 
 Hey! First of all, thank you for considering to support me. You can support me by Buying me a Coffee via Ko-Fi. You can either [Click Here](https://ko-fi.com/rohankishore) or click the button "Buy Me A Coffee" on top of this page or via the GitHub Sponsor button. Thanks a lot :)
