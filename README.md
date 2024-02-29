@@ -11,8 +11,7 @@ cvGen helps you to make <i>BEAUTIFUL</i> CVs with ease, with the help of in-buil
 </div>
 
 ## 🎵 What is cvGen?
-cvGen helps you to make really good looking CVs.It is built using PyQt6.
-  
+cvGen helps you to make good-looking CVs.It is built using PyQt6.
 <br>
 
 ## Interface
